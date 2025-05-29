@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bancomat - Saldo</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Il tuo saldo: {{ saldo }}€</h1>
+        <form action="/prelievo" method="POST">
+            <label for="importo">Importo da prelevare:</label>
+            <input type="number" name="importo" id="importo" required>
+            <button type="submit">Preleva</button>
+        </form>
+        <form action="/deposito" method="POST">
+            <label for="
