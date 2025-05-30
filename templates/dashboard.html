@@ -1,0 +1,20 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 text-center">
+        <h2 class="mb-4">Benvenuto al Bancomat</h2>
+        <p class="lead">Saldo attuale: <strong>{{ balance }} €</strong></p>
+        {% if iban %}
+        <p class="lead">IBAN: <strong>{{ iban }}</strong></p>
+        {% endif %}
+        <div class="d-grid gap-2 col-6 mx-auto">
+            <a href="{{ url_for('saldo') }}" class="btn btn-info mb-2">Visualizza Saldo</a>
+            <a href="{{ url_for('prelievo') }}" class="btn btn-warning mb-2">Prelievo</a>
+            <a href="{{ url_for('deposito') }}" class="btn btn-success mb-2">Deposito</a>
+            <a href="{{ url_for('bonifico') }}" class="btn btn-primary mb-2">Bonifico</a>
+            <a href="{{ url_for('transazioni') }}" class="btn btn-dark mb-2">Transazioni</a>
+            <a href="{{ url_for('logout') }}" class="btn btn-secondary">Logout</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

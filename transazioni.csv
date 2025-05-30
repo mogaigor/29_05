@@ -1,0 +1,5 @@
+card_number,data,tipo,importo,causale
+8888888888888888,2025-05-30 09:29:29,Deposito,1000000000.00,Deposito contanti
+8888888888888888,2025-05-30 09:30:03,Prelievo,689869.00,Prelievo contanti
+8888888888888888,2025-05-30 09:32:03,Bonifico inviato,66666666.00,A luca petruzzelli
+1234567890123456,2025-05-30 09:32:03,Bonifico ricevuto,66666666.00,Da hh st

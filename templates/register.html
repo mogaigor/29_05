@@ -1,0 +1,30 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-4">
+        <h2 class="mb-4">Registrazione nuova carta</h2>
+        <form method="post">
+            <div class="mb-3">
+                <label for="card_number" class="form-label">Numero carta (16 cifre)</label>
+                <input type="text" class="form-control" id="card_number" name="card_number" required maxlength="16" minlength="16" pattern="\d{16}">
+            </div>
+            <div class="mb-3">
+                <label for="pin" class="form-label">PIN (5 cifre)</label>
+                <input type="password" class="form-control" id="pin" name="pin" required maxlength="5" minlength="5" pattern="\d{5}">
+            </div>
+            <div class="mb-3">
+                <label for="nome" class="form-label">Nome</label>
+                <input type="text" class="form-control" id="nome" name="nome" required>
+            </div>
+            <div class="mb-3">
+                <label for="cognome" class="form-label">Cognome</label>
+                <input type="text" class="form-control" id="cognome" name="cognome" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Registra</button>
+        </form>
+        <div class="mt-3 text-center">
+            <a href="{{ url_for('login') }}">Torna al login</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

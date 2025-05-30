@@ -1,0 +1,33 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <h2 class="mb-4">Ultime Transazioni</h2>
+        {% if transazioni and transazioni|length > 0 %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Tipo</th>
+                    <th>Importo</th>
+                    <th>Destinatario/Causale</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for t in transazioni %}
+                <tr>
+                    <td>{{ t.data }}</td>
+                    <td>{{ t.tipo }}</td>
+                    <td>{{ t.importo }} €</td>
+                    <td>{{ t.causale }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="alert alert-info">Nessuna transazione trovata.</div>
+        {% endif %}
+        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary mt-3">Torna alla Home</a>
+    </div>
+</div>
+{% endblock %}
