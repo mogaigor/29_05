@@ -1,30 +1,111 @@
 {% extends 'layout.html' %}
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-4">
-        <h2 class="mb-4">Registrazione nuova carta</h2>
-        <form method="post">
-            <div class="mb-3">
-                <label for="card_number" class="form-label">Numero carta (16 cifre)</label>
-                <input type="text" class="form-control" id="card_number" name="card_number" required maxlength="16" minlength="16" pattern="\d{16}">
-            </div>
-            <div class="mb-3">
-                <label for="pin" class="form-label">PIN (5 cifre)</label>
-                <input type="password" class="form-control" id="pin" name="pin" required maxlength="5" minlength="5" pattern="\d{5}">
-            </div>
-            <div class="mb-3">
-                <label for="nome" class="form-label">Nome</label>
-                <input type="text" class="form-control" id="nome" name="nome" required>
-            </div>
-            <div class="mb-3">
-                <label for="cognome" class="form-label">Cognome</label>
-                <input type="text" class="form-control" id="cognome" name="cognome" required>
-            </div>
-            <button type="submit" class="btn btn-primary w-100">Registra</button>
-        </form>
-        <div class="mt-3 text-center">
-            <a href="{{ url_for('login') }}">Torna al login</a>
+<div class="auth-container">
+    <div class="auth-header">
+        <div class="auth-title">
+            <i class="fas fa-user-plus"></i>
+            Registra nuova carta
         </div>
+        <div class="auth-subtitle">Inserisci i tuoi dati per creare una nuova carta</div>
     </div>
+
+    {% if error %}
+    <div class="error-message">
+        <i class="fas fa-exclamation-circle"></i>
+        {{ error }}
+    </div>
+    {% endif %}
+
+    <form method="post" class="auth-form">
+        <div class="form-group">
+            <input type="text" 
+                   class="form-input" 
+                   id="card_number" 
+                   name="card_number" 
+                   required 
+                   maxlength="19"
+                   placeholder="Numero carta (16 cifre)"
+                   autocomplete="off">
+        </div>
+        <div class="form-group">
+            <input type="password" 
+                   class="form-input" 
+                   id="pin" 
+                   name="pin" 
+                   required 
+                   maxlength="5" 
+                   minlength="5"
+                   pattern="\d{5}"
+                   placeholder="PIN (5 cifre)"
+                   autocomplete="off">
+        </div>
+        <div class="form-group">
+            <input type="text" 
+                   class="form-input" 
+                   id="nome" 
+                   name="nome" 
+                   required
+                   placeholder="Nome"
+                   autocomplete="off">
+        </div>
+        <div class="form-group">
+            <input type="text" 
+                   class="form-input" 
+                   id="cognome" 
+                   name="cognome" 
+                   required
+                   placeholder="Cognome"
+                   autocomplete="off">
+        </div>
+        
+        <div class="action-buttons">
+            <button type="submit" class="btn-main">
+                <i class="fas fa-check-circle"></i>
+                <span>Registra carta</span>
+            </button>
+            
+            <div class="auth-divider">
+                <span>oppure</span>
+            </div>
+
+            <a href="{{ url_for('login') }}" class="btn-secondary">
+                <i class="fas fa-arrow-left"></i>
+                <span>Torna al login</span>
+            </a>
+        </div>
+    </form>
 </div>
+
+<script>
+document.getElementById('card_number').addEventListener('input', function(e) {
+    // Remove any non-digit characters
+    let value = e.target.value.replace(/\D/g, '');
+    
+    // Add spaces every 4 digits
+    value = value.replace(/(\d{4})(?=\d)/g, '$1 ');
+    
+    // Update the input value
+    e.target.value = value;
+
+    // Validate length (16 digits)
+    const digits = value.replace(/\s/g, '');
+    if (digits.length === 16) {
+        this.setCustomValidity('');
+    } else {
+        this.setCustomValidity('Il numero carta deve essere di 16 cifre');
+    }
+});
+
+document.getElementById('pin').addEventListener('input', function(e) {
+    // Remove any non-digit characters
+    let value = e.target.value.replace(/\D/g, '');
+    e.target.value = value;
+    
+    if (value.length === 5) {
+        this.setCustomValidity('');
+    } else {
+        this.setCustomValidity('Il PIN deve essere di 5 cifre');
+    }
+});
+</script>
 {% endblock %}

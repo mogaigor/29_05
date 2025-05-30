@@ -1,18 +1,97 @@
 {% extends 'layout.html' %}
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-4">
-        <h2 class="mb-4">Login Bancomat</h2>
-        <form method="post">
-            <div class="mb-3">
-                <label for="card_number" class="form-label">Numero carta</label>
-                <input type="text" class="form-control" id="card_number" name="card_number" required>
-            </div>
-            <button type="submit" class="btn btn-primary w-100">Accedi</button>
-        </form>
-        <div class="mt-3 text-center">
-            <a href="{{ url_for('register') }}">Non hai una carta? Registrati</a>
+<div class="auth-container">
+    <div class="auth-header">
+        <div class="auth-title">
+            <i class="fas fa-shield-alt"></i>
+            Accedi al tuo conto
         </div>
+        <div class="auth-subtitle">Inserisci le tue credenziali per continuare</div>
     </div>
+
+    {% if error %}
+    <div class="error-message">
+        <i class="fas fa-exclamation-circle"></i>
+        {{ error }}
+        {% if debug_info %}
+        <div style="font-size: 0.8em; margin-top: 5px;">Debug: {{ debug_info }}</div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <form method="post" class="auth-form">
+        <div class="form-group">
+            <div class="input-group">
+                <input 
+                    type="text" 
+                    class="form-input" 
+                    id="card_number" 
+                    name="card_number" 
+                    required 
+                    pattern="\d{16}"
+                    minlength="16"
+                    maxlength="19"
+                    placeholder="0000 0000 0000 0000"
+                    autocomplete="off"
+                    oninput="this.setCustomValidity('')"
+                    oninvalid="this.setCustomValidity('Inserisci un numero carta valido di 16 cifre')">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="input-group">
+                <input 
+                    type="password" 
+                    class="form-input" 
+                    id="pin" 
+                    name="pin" 
+                    required 
+                    pattern="\d{5}"
+                    minlength="5"
+                    maxlength="5"
+                    placeholder="PIN (5 cifre)"
+                    autocomplete="off"
+                    oninput="this.setCustomValidity('')"
+                    oninvalid="this.setCustomValidity('Inserisci un PIN valido di 5 cifre')">
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <button type="submit" class="btn-main">
+                <i class="fas fa-sign-in-alt"></i>
+                <span>Accedi</span>
+            </button>
+            
+            <div class="auth-divider">
+                <span>oppure</span>
+            </div>
+
+            <a href="{{ url_for('register') }}" class="btn-secondary">
+                <i class="fas fa-user-plus"></i>
+                <span>Registrati</span>
+            </a>
+        </div>
+    </form>
 </div>
+
+<script>
+document.getElementById('card_number').addEventListener('input', function(e) {
+    // Remove any non-digit characters
+    let value = e.target.value.replace(/\D/g, '');
+    
+    // Add spaces every 4 digits
+    value = value.replace(/(\d{4})(?=\d)/g, '$1 ');
+    
+    // Update the input value
+    e.target.value = value;
+
+    // Validate length (16 digits)
+    const digits = value.replace(/\s/g, '');
+    if (digits.length === 16) {
+        this.setCustomValidity('');
+    } else {
+        this.setCustomValidity('Il numero carta deve essere di 16 cifre');
+    }
+});
+</script>
 {% endblock %}

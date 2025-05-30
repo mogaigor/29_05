@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, render_template, request, redirect, url_for, session
 from functools import wraps
 import csv
 import os
@@ -63,36 +63,70 @@ def login_required(f):
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        card_number = request.form['card_number']
+        # Pulizia input
+        card_number = request.form['card_number'].replace(" ", "").strip()  # Rimuove spazi e whitespace
+        pin = request.form['pin'].strip()
+        
+        print(f"Tentativo di login con carta: {card_number}")  # Debug
+        print(f"Carte disponibili: {list(CARDS.keys())}")  # Debug
+        
         card = CARDS.get(card_number)
-        if card:
-            session['card_number'] = card_number
-            return redirect(url_for('dashboard'))
-        else:
-            flash('Numero carta non valido', 'danger')
+        
+        if not card:
+            error = 'Numero carta non valido'
+            return render_template('login.html', error=error, debug_info=f"Carta {card_number} non trovata")
+        
+        if card['pin'] != pin:
+            error = 'PIN non valido'
+            return render_template('login.html', error=error)
+            
+        session['card_number'] = card_number
+        return redirect(url_for('dashboard'))
+        
     return render_template('login.html')
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        card_number = request.form['card_number']
+        # Rimuovi spazi dal numero carta
+        card_number = request.form['card_number'].replace(" ", "")
         pin = request.form['pin']
-        nome = request.form['nome']
-        cognome = request.form['cognome']
+        nome = request.form['nome'].strip()
+        cognome = request.form['cognome'].strip()
+
+        # Validazione
         if not (card_number.isdigit() and len(card_number) == 16):
-            flash('Il numero carta deve essere di 16 cifre.', 'danger')
-        elif not (pin.isdigit() and len(pin) == 5):
-            flash('Il PIN deve essere di 5 cifre.', 'danger')
-        elif not nome or not cognome:
-            flash('Nome e cognome sono obbligatori.', 'danger')
-        elif card_number in CARDS:
-            flash('Carta già registrata', 'danger')
-        else:
+            error = 'Il numero carta deve essere di 16 cifre.'
+            return render_template('register.html', error=error)
+            
+        if not (pin.isdigit() and len(pin) == 5):
+            error = 'Il PIN deve essere di 5 cifre.'
+            return render_template('register.html', error=error)
+            
+        if not nome or not cognome:
+            error = 'Nome e cognome sono obbligatori.'
+            return render_template('register.html', error=error)
+            
+        if card_number in CARDS:
+            error = 'Questa carta è già registrata.'
+            return render_template('register.html', error=error)
+
+        # Se tutte le validazioni passano, registra la carta
+        try:
             iban = generate_iban()
-            CARDS[card_number] = {'pin': pin, 'balance': 0.0, 'iban': iban, 'nome': nome, 'cognome': cognome}
+            CARDS[card_number] = {
+                'pin': pin,
+                'balance': 0.0,
+                'iban': iban,
+                'nome': nome,
+                'cognome': cognome
+            }
             save_cards(CARDS)
-            flash('Carta registrata con successo! Ora puoi accedere.', 'success')
             return redirect(url_for('login'))
+        except Exception as e:
+            error = 'Si è verificato un errore durante la registrazione.'
+            return render_template('register.html', error=error)
+
     return render_template('register.html')
 
 @app.route('/dashboard')
@@ -115,17 +149,17 @@ def prelievo():
         try:
             amount = float(request.form['amount'])
             if amount <= 0:
-                flash('Importo non valido', 'danger')
+                pass  # flash('Importo non valido', 'danger')
             elif amount > card['balance']:
-                flash('Saldo insufficiente', 'danger')
+                pass  # flash('Saldo insufficiente', 'danger')
             else:
                 card['balance'] -= amount
                 save_cards(CARDS)
                 save_transazione(session['card_number'], 'Prelievo', amount, 'Prelievo contanti')
-                flash(f'Prelievo di {amount:.2f}€ effettuato', 'success')
+                # flash(f'Prelievo di {amount:.2f}€ effettuato', 'success')
                 return redirect(url_for('dashboard'))
         except ValueError:
-            flash('Inserisci un importo valido', 'danger')
+            pass  # flash('Inserisci un importo valido', 'danger')
     return render_template('prelievo.html', balance=card['balance'])
 
 @app.route('/deposito', methods=['GET', 'POST'])
@@ -136,15 +170,15 @@ def deposito():
         try:
             amount = float(request.form['amount'])
             if amount <= 0:
-                flash('Importo non valido', 'danger')
+                pass  # flash('Importo non valido', 'danger')
             else:
                 card['balance'] += amount
                 save_cards(CARDS)
                 save_transazione(session['card_number'], 'Deposito', amount, 'Deposito contanti')
-                flash(f'Deposito di {amount:.2f}€ effettuato', 'success')
+                # flash(f'Deposito di {amount:.2f}€ effettuato', 'success')
                 return redirect(url_for('dashboard'))
         except ValueError:
-            flash('Inserisci un importo valido', 'danger')
+            pass  # flash('Inserisci un importo valido', 'danger')
     return render_template('deposito.html', balance=card['balance'])
 
 @app.route('/bonifico', methods=['GET', 'POST'])
@@ -166,28 +200,28 @@ def bonifico():
                 break
         if 'cerca' in request.form:
             if not destinatario_card:
-                flash('Destinatario non trovato.', 'danger')
+                pass  # flash('Destinatario non trovato.', 'danger')
         elif 'invia' in request.form:
             try:
                 importo = float(importo)
                 if not destinatario_card:
-                    flash('Destinatario non trovato.', 'danger')
+                    pass  # flash('Destinatario non trovato.', 'danger')
                 elif destinatario_card == session['card_number']:
-                    flash('Non puoi inviare un bonifico a te stesso.', 'danger')
+                    pass  # flash('Non puoi inviare un bonifico a te stesso.', 'danger')
                 elif importo <= 0:
-                    flash('Importo non valido.', 'danger')
+                    pass  # flash('Importo non valido.', 'danger')
                 elif importo > card['balance']:
-                    flash('Saldo insufficiente.', 'danger')
+                    pass  # flash('Saldo insufficiente.', 'danger')
                 else:
                     card['balance'] -= importo
                     CARDS[destinatario_card]['balance'] += importo
                     save_cards(CARDS)
                     save_transazione(session['card_number'], 'Bonifico inviato', importo, f'A {nome_dest} {cognome_dest}')
                     save_transazione(destinatario_card, 'Bonifico ricevuto', importo, f'Da {card["nome"]} {card["cognome"]}')
-                    flash(f'Bonifico di {importo:.2f}€ inviato con successo!', 'success')
+                    # flash(f'Bonifico di {importo:.2f}€ inviato con successo!', 'success')
                     return redirect(url_for('dashboard'))
             except ValueError:
-                flash('Inserisci un importo valido.', 'danger')
+                pass  # flash('Inserisci un importo valido.', 'danger')
     return render_template('bonifico.html', balance=card['balance'], iban_destinatario=iban_destinatario, nome_dest=nome_dest, cognome_dest=cognome_dest)
 
 def load_transazioni(card_number):
